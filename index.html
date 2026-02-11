@@ -197,22 +197,25 @@ function renderData(data){
   const updDate=new Date(ts);
   $('lastUpdated').textContent='Updated '+relTime(updDate);
 
-  const merBal=(mer.balance||0)/100;
+  const merCash=(mer.balance||0)/100;
+  const merPortValue=(mer.portfolio_value||0)/100;
+  const merTotal=merCash+merPortValue;
+  const merStarting=4090; // Starting capital
   const allMerPositions=mer.positions||pos.meridian||[];
   const merPos=allMerPositions.filter(p=>p.position>0);
   const merExp=merPos.reduce((s,p)=>s+(p.market_exposure||0),0)/100;
-  const merPnl=allMerPositions.reduce((s,p)=>s+(p.realized_pnl||0),0)/100;
+  const merPnl=merTotal-merStarting;
   const merFees=allMerPositions.reduce((s,p)=>s+(p.fees_paid||0),0)/100;
   const ap=apex.pnl||{};
 
   // Total portfolio value
   const apexBal=apex.total_invested||0;
-  const totalPortfolio=merBal+apexBal;
-  const totalPnl=(ap.realized_pnl||0)+merPnl;
+  const totalPortfolio=merTotal+apexBal;
+  const totalPnl=merPnl+(ap.realized_pnl||0);
   $('totalValue').innerHTML=`<div class="card total-value-card loading" style="animation-delay:.02s">
     <div class="label">Total Portfolio Value</div>
     <div class="value">${fmt(totalPortfolio)}</div>
-    <div class="sub">Apex ${fmt(apexBal)} · Meridian ${fmt(merBal)}</div></div>`;
+    <div class="sub">Apex ${fmt(apexBal)} · Meridian ${fmt(merTotal)}</div></div>`;
 
   $('portfolioGrid').innerHTML=`
     <div class="card portfolio-card apex loading" style="animation-delay:.05s">
@@ -230,9 +233,10 @@ function renderData(data){
     <div class="card portfolio-card meridian loading" style="animation-delay:.1s">
       <div class="portfolio-header"><span class="portfolio-name">MERIDIAN</span>
         <div class="bot-status"><div class="status-dot ${isActive(mer.last_scan)?'active':'inactive'}"></div>${isActive(mer.last_scan)?'Active':'Offline'}</div></div>
-      <div class="portfolio-balance">${fmt(merBal)}</div>
+      <div class="portfolio-balance">${fmt(merTotal)}</div>
       <div class="portfolio-stats">
-        <div class="stat-item"><label>Exposure</label><span>${fmt(merExp)}</span></div>
+        <div class="stat-item"><label>Cash</label><span>${fmt(merCash)}</span></div>
+        <div class="stat-item"><label>Positions</label><span>${fmt(merPortValue)}</span></div>
         <div class="stat-item"><label>P&amp;L</label><span style="color:${merPnl>=0?'var(--green)':'var(--red)'}">${fmt(merPnl)}</span></div>
         <div class="stat-item"><label>Fees</label><span>${fmt(merFees)}</span></div>
         <div class="stat-item"><label>Open</label><span>${merPos.length}</span></div>
