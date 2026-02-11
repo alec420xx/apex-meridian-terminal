@@ -25,8 +25,13 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .ticker-change{font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
 .ticker-change.up{color:var(--green)}.ticker-change.down{color:var(--red)}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;backdrop-filter:blur(10px);transition:transform .2s,box-shadow .2s}
-.card:hover{transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,0,0,.2)}
-.section-title{font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:24px 0 12px}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3),0 0 0 1px rgba(148,163,184,.08)}
+.section-title{font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+.section-count{font-size:12px;font-weight:600;color:var(--text3)}
+.total-value-card{text-align:center;padding:24px 20px;margin-top:16px;background:linear-gradient(135deg,rgba(59,130,246,0.08),rgba(168,85,247,0.08));border:1px solid rgba(59,130,246,0.15)}
+.total-value-card .label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.total-value-card .value{font-size:40px;font-weight:800;background:linear-gradient(135deg,var(--blue2),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-variant-numeric:tabular-nums}
+.total-value-card .sub{font-size:12px;color:var(--text3);margin-top:4px}
 .portfolio-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:600px){.portfolio-grid{grid-template-columns:1fr}}
 .portfolio-card{position:relative;overflow:hidden}
@@ -49,29 +54,38 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .perf-card{text-align:center;padding:16px 12px}
 .perf-card .value{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
 .perf-card .label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
-.position-card{display:flex;align-items:center;gap:12px;padding:14px 16px;margin-bottom:8px;background:var(--surface);border:1px solid var(--border);border-radius:12px;transition:all .2s}
-.position-card:hover{border-color:rgba(148,163,184,.2)}
+.position-card{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:6px;background:var(--surface);border:1px solid var(--border);border-radius:12px;transition:all .2s}
+.position-card:hover{border-color:rgba(148,163,184,.2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.15)}
 .position-bot{font-size:9px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:.5px;white-space:nowrap;flex-shrink:0}
 .position-bot.apex{background:rgba(59,130,246,.15);color:var(--blue2)}
 .position-bot.meridian{background:rgba(34,197,94,.15);color:var(--green)}
 .position-info{flex:1;min-width:0}
-.position-market{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.position-meta{font-size:11px;color:var(--text3);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
+.position-market{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.position-meta{font-size:10px;color:var(--text3);margin-top:1px;display:flex;gap:8px;flex-wrap:wrap}
 .side-pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;letter-spacing:.3px;flex-shrink:0}
 .side-pill.yes{background:var(--green-bg);color:var(--green)}
 .side-pill.no{background:var(--red-bg);color:var(--red)}
 .position-size{text-align:right;flex-shrink:0}
 .position-size .amount{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
-.trade-item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)}
+.position-size .pnl{font-size:10px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:1px}
+.group-header{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:6px;background:var(--surface);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .2s;user-select:none}
+.group-header:hover{border-color:rgba(148,163,184,.2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.group-header .chevron{font-size:12px;color:var(--text3);transition:transform .2s;flex-shrink:0}
+.group-header.open .chevron{transform:rotate(90deg)}
+.group-header .position-info{flex:1}
+.group-children{overflow:hidden;transition:max-height .3s ease}
+.group-children.collapsed{max-height:0!important}
+.group-children .position-card{margin-left:24px;opacity:0.85}
+.trade-item{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border)}
 .trade-item:last-child{border-bottom:none}
-.trade-time{font-size:10px;color:var(--text3);min-width:48px;padding-top:2px;font-variant-numeric:tabular-nums}
+.trade-time{font-size:10px;color:var(--text3);min-width:44px;padding-top:2px;font-variant-numeric:tabular-nums}
 .trade-content{flex:1;min-width:0}
 .trade-header{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .trade-action{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.3px}
 .trade-action.buy{background:var(--green-bg);color:var(--green)}
 .trade-action.sell{background:var(--red-bg);color:var(--red)}
-.trade-market{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trade-details{font-size:11px;color:var(--text3);margin-top:3px}
+.trade-market{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trade-details{font-size:10px;color:var(--text3);margin-top:2px}
 .trade-status{font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;margin-left:auto;flex-shrink:0}
 .trade-status.submitted{background:rgba(59,130,246,.15);color:var(--blue2)}
 .trade-status.error{background:var(--red-bg);color:var(--red)}
@@ -82,6 +96,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .footer p{font-size:11px;color:var(--text3)}
 .loading{opacity:0;animation:fadeIn .4s ease forwards}
 @keyframes fadeIn{to{opacity:1}}
+.skeleton{background:linear-gradient(90deg,var(--surface) 25%,rgba(148,163,184,0.08) 50%,var(--surface) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;height:120px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 </style>
 </head>
 <body>
@@ -97,21 +113,32 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
     <div class="ticker-item"><span class="ticker-symbol">XRP</span><span class="ticker-price" id="p-XRP">—</span><span class="ticker-change" id="c-XRP"></span></div>
     <div class="ticker-item"><span class="ticker-symbol">DOGE</span><span class="ticker-price" id="p-DOGE">—</span><span class="ticker-change" id="c-DOGE"></span></div>
   </div>
+  <div id="totalValue"></div>
   <div class="section-title">Portfolio</div>
-  <div class="portfolio-grid" id="portfolioGrid"></div>
+  <div class="portfolio-grid" id="portfolioGrid"><div class="skeleton"></div><div class="skeleton"></div></div>
   <div class="section-title">Performance</div>
   <div class="perf-grid" id="perfGrid"></div>
-  <div class="section-title">Open Positions</div>
-  <div id="positions"></div>
+  <div class="section-title" id="positionsTitle">Open Positions</div>
+  <div id="positions"><div class="skeleton" style="height:200px"></div></div>
   <div class="section-title">Recent Trades</div>
-  <div class="card" id="trades" style="padding:8px 16px"></div>
+  <div class="card" id="trades" style="padding:8px 16px"><div class="skeleton" style="height:150px;border-radius:8px"></div></div>
   <div class="footer"><p>Auto-refreshes every 60s</p></div>
 </div>
 <script>
 const TM={KXBTC:'Bitcoin',KXBTCD:'Bitcoin',KXETH:'Ethereum',KXETHD:'Ethereum',KXSOL:'Solana',KXSOLD:'Solana',KXXRP:'XRP',KXXRPD:'XRP',KXDOGE:'Dogecoin',KXDOGED:'Dogecoin',KXRECSSNBER:'Recession 2026',KXLARGECUT:'Fed Large Rate Cut',KXAISPIKE:'AI Capability Growth',KXCABLEAVE:'Trump Cabinet Leave',KXFEDMEET:'Fed Emergency Meeting',KXINXPOS:"S&P Positive 2026",KXWARSHNOM:'Warren Sherman Nom.'};
 
+function getAssetGroup(ticker){
+  const m=ticker.match(/^(KX[A-Z]+D?)-/);
+  if(!m) return null;
+  const prefix=m[1];
+  // Group XRP range bets (B prefix = bucket/range)
+  const isRange=ticker.match(/-B\d/);
+  if(isRange) return prefix+'-RANGE';
+  return null;
+}
+
 function parseTicker(t){
-  const m=t.match(/^(KX[A-Z]+)/);if(!m)return t;
+  const m=t.match(/^(KX[A-Z]+D?)/);if(!m)return t;
   const p=m[1],name=TM[p]||p;
   const r=t.match(/B(\d+\.?\d*)/);
   if(r){const v=parseFloat(r[1]);
@@ -132,43 +159,68 @@ const $=id=>document.getElementById(id);
 const fmt=(n,d=2)=>n==null?'—':'$'+Number(n).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});
 const pct=n=>n==null?'—':(n*100).toFixed(1)+'%';
 
+function relTime(date){
+  const s=Math.floor((Date.now()-date.getTime())/1000);
+  if(s<60)return 'just now';
+  if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+
 function updateClock(){$('clock').textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZone:'UTC'})+' UTC'}
 setInterval(updateClock,1000);updateClock();
 
 const SYMS=['BTCUSDT','ETHUSDT','SOLUSDT','XRPUSDT','DOGEUSDT'];
 const SH={BTCUSDT:'BTC',ETHUSDT:'ETH',SOLUSDT:'SOL',XRPUSDT:'XRP',DOGEUSDT:'DOGE'};
-async function fetchCrypto(){try{
-  const r=await fetch('https://api.binance.com/api/v3/ticker/24hr?symbols='+JSON.stringify(SYMS));
-  (await r.json()).forEach(t=>{const s=SH[t.symbol],p=parseFloat(t.lastPrice),c=parseFloat(t.priceChangePercent);
-    $('p-'+s).textContent=p>=100?'$'+Math.round(p).toLocaleString():'$'+p.toFixed(p>=1?2:4);
-    const e=$('c-'+s);e.textContent=(c>=0?'+':'')+c.toFixed(1)+'%';e.className='ticker-change '+(c>=0?'up':'down');});
-}catch(e){}}
+async function fetchCrypto(){
+  const urls=['https://api.binance.com/api/v3/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(SYMS)),
+              'https://api.binance.us/api/v3/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(SYMS))];
+  for(const url of urls){
+    try{
+      const r=await fetch(url);if(!r.ok)continue;
+      (await r.json()).forEach(t=>{const s=SH[t.symbol],p=parseFloat(t.lastPrice),c=parseFloat(t.priceChangePercent);
+        $('p-'+s).textContent=p>=100?'$'+Math.round(p).toLocaleString():'$'+p.toFixed(p>=1?2:4);
+        const e=$('c-'+s);e.textContent=(c>=0?'+':'')+c.toFixed(1)+'%';e.className='ticker-change '+(c>=0?'up':'down');});
+      return;
+    }catch(e){}
+  }
+}
 fetchCrypto();setInterval(fetchCrypto,15000);
 
-function isActive(ts){if(!ts)return false;return(Date.now()-(ts>1e12?ts:ts*1000))<3600000}
+function isActive(ts){if(!ts)return false;const now=Date.now()/1000;const t=ts>1e12?ts/1000:ts;return(now-t)<7200}
 
 async function loadData(){try{const r=await fetch('/data.json?'+Date.now());renderData(await r.json())}catch(e){}}
 
 function renderData(data){
   const o=data.overview||{},apex=o.apex||{},mer=o.meridian||{},pos=data.positions||{},trades=(data.trades||{}).trades||[];
   const ts=o.timestamp||new Date().toISOString();
-  $('lastUpdated').textContent='Updated '+new Date(ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'})+' UTC';
+  const updDate=new Date(ts);
+  $('lastUpdated').textContent='Updated '+relTime(updDate);
 
   const merBal=(mer.balance||0)/100;
-  const merPos=(pos.meridian||[]).filter(p=>p.position>0);
-  const allMer=mer.positions||pos.meridian||[];
+  const allMerPositions=mer.positions||pos.meridian||[];
+  const merPos=allMerPositions.filter(p=>p.position>0);
   const merExp=merPos.reduce((s,p)=>s+(p.market_exposure||0),0)/100;
-  const merPnl=allMer.reduce((s,p)=>s+(p.realized_pnl||0),0)/100;
-  const merFees=allMer.reduce((s,p)=>s+(p.fees_paid||0),0)/100;
+  const merPnl=allMerPositions.reduce((s,p)=>s+(p.realized_pnl||0),0)/100;
+  const merFees=allMerPositions.reduce((s,p)=>s+(p.fees_paid||0),0)/100;
   const ap=apex.pnl||{};
+
+  // Total portfolio value
+  const apexBal=apex.total_invested||0;
+  const totalPortfolio=merBal+apexBal;
+  const totalPnl=(ap.realized_pnl||0)+merPnl;
+  $('totalValue').innerHTML=`<div class="card total-value-card loading" style="animation-delay:.02s">
+    <div class="label">Total Portfolio Value</div>
+    <div class="value">${fmt(totalPortfolio)}</div>
+    <div class="sub">Apex ${fmt(apexBal)} · Meridian ${fmt(merBal)}</div></div>`;
 
   $('portfolioGrid').innerHTML=`
     <div class="card portfolio-card apex loading" style="animation-delay:.05s">
       <div class="portfolio-header"><span class="portfolio-name">APEX</span>
         <div class="bot-status"><div class="status-dot ${isActive(apex.last_scan)?'active':'inactive'}"></div>${isActive(apex.last_scan)?'Active':'Offline'}</div></div>
-      <div class="portfolio-balance">${fmt(apex.total_invested||0)}</div>
+      <div class="portfolio-balance">${fmt(apexBal)}</div>
       <div class="portfolio-stats">
-        <div class="stat-item"><label>Invested</label><span>${fmt(apex.total_invested||0)}</span></div>
+        <div class="stat-item"><label>Invested</label><span>${fmt(apexBal)}</span></div>
         <div class="stat-item"><label>Returned</label><span>${fmt(apex.total_returned||0)}</span></div>
         <div class="stat-item"><label>P&amp;L</label><span style="color:${(ap.realized_pnl||0)>=0?'var(--green)':'var(--red)'}">${fmt(ap.realized_pnl||0)}</span></div>
         <div class="stat-item"><label>Open</label><span>${apex.open_positions||0}</span></div>
@@ -186,33 +238,103 @@ function renderData(data){
         <div class="stat-item"><label>Open</label><span>${merPos.length}</span></div>
       </div></div>`;
 
-  const totalDep=(apex.total_invested||0)+merExp;
-  const totalPnl=(ap.realized_pnl||0)+merPnl;
+  const totalDep=apexBal+merExp;
   $('perfGrid').innerHTML=`
     <div class="card perf-card loading" style="animation-delay:.15s"><div class="value">${fmt(totalDep)}</div><div class="label">Total Deployed</div></div>
     <div class="card perf-card loading" style="animation-delay:.2s"><div class="value" style="color:${totalPnl>=0?'var(--green)':'var(--red)'}">${fmt(totalPnl)}</div><div class="label">Total P&amp;L</div></div>
     <div class="card perf-card loading" style="animation-delay:.25s"><div class="value">${pct(ap.win_rate||0)}</div><div class="label">Win Rate</div></div>
     <div class="card perf-card loading" style="animation-delay:.3s"><div class="value">${(apex.open_positions||0)+merPos.length}</div><div class="label">Positions</div></div>`;
 
-  // Positions
-  const allPos=[];
-  (pos.apex||[]).filter(p=>p.status==='open').forEach(p=>allPos.push({bot:'apex',market:p.market_question||'Unknown',side:p.side,size:fmt(p.size_usdc),entry:p.entry_price?(p.entry_price*100).toFixed(1)+'¢':'—',contracts:p.num_tokens?Math.round(p.num_tokens):'—',pnl:null}));
-  merPos.forEach(p=>allPos.push({bot:'meridian',market:parseTicker(p.ticker),side:'YES',size:fmt((p.market_exposure||0)/100),entry:'—',contracts:p.position,pnl:p.realized_pnl&&p.realized_pnl!==0?fmt(p.realized_pnl/100):null}));
+  // Build positions with grouping
+  const apexPositions=(pos.apex||[]).filter(p=>p.status==='open').map(p=>({
+    bot:'apex',market:p.market_question||'Unknown',side:p.side||'YES',
+    size:p.size_usdc,sizeStr:fmt(p.size_usdc),
+    entry:p.entry_price?(p.entry_price*100).toFixed(1)+'¢':'—',
+    contracts:p.num_tokens?Math.round(p.num_tokens):'—',
+    pnl:null,ticker:''
+  }));
 
-  $('positions').innerHTML=allPos.length===0?'<div class="card empty-state">No open positions</div>':
-    allPos.map((p,i)=>`<div class="position-card loading" style="animation-delay:${.35+i*.03}s">
+  const merPositions=merPos.map(p=>{
+    const rpnl=p.realized_pnl&&p.realized_pnl!==0?p.realized_pnl/100:null;
+    const costBasis=p.position>0?(p.market_exposure/100/p.position*100).toFixed(1)+'¢':null;
+    return {
+      bot:'meridian',market:parseTicker(p.ticker),side:'YES',
+      size:(p.market_exposure||0)/100,sizeStr:fmt((p.market_exposure||0)/100),
+      entry:costBasis||'—',contracts:p.position,
+      pnl:rpnl,ticker:p.ticker
+    };
+  });
+
+  // Group by asset for range bets
+  const allPos=[];
+  const groups={};
+  
+  apexPositions.forEach(p=>allPos.push(p));
+  
+  merPositions.forEach(p=>{
+    const gk=getAssetGroup(p.ticker);
+    if(gk){
+      if(!groups[gk])groups[gk]={positions:[],totalExp:0,totalPnl:0,totalContracts:0,asset:''};
+      groups[gk].positions.push(p);
+      groups[gk].totalExp+=p.size;
+      groups[gk].totalPnl+=(p.pnl||0);
+      groups[gk].totalContracts+=p.contracts;
+      // Derive asset name
+      const m=gk.match(/^(KX[A-Z]+D?)/);
+      groups[gk].asset=TM[m[1]]||m[1];
+    } else {
+      allPos.push(p);
+    }
+  });
+
+  const totalOpenCount=apexPositions.length+merPos.length;
+  $('positionsTitle').innerHTML=`Open Positions <span class="section-count">(${totalOpenCount})</span>`;
+
+  let posHTML='';
+  // Render grouped positions
+  Object.entries(groups).forEach(([gk,g])=>{
+    const id='grp-'+gk.replace(/[^a-z0-9]/gi,'');
+    const pnlStr=g.totalPnl!==0?`<span style="color:${g.totalPnl>=0?'var(--green)':'var(--red)'}">P&L ${fmt(g.totalPnl)}</span>`:'';
+    posHTML+=`<div class="group-header" onclick="this.classList.toggle('open');document.getElementById('${id}').classList.toggle('collapsed')">
+      <span class="chevron">▶</span>
+      <span class="position-bot meridian">MERIDIAN</span>
+      <div class="position-info">
+        <div class="position-market">${g.asset} Range Bets (${g.positions.length} positions)</div>
+        <div class="position-meta"><span>${g.totalContracts.toLocaleString()} contracts</span>${pnlStr}</div>
+      </div>
+      <span class="side-pill yes">YES</span>
+      <div class="position-size"><div class="amount">${fmt(g.totalExp)}</div></div>
+    </div>
+    <div class="group-children collapsed" id="${id}">`;
+    g.positions.forEach(p=>{
+      const pnlTag=p.pnl!=null?`<span style="color:${p.pnl>=0?'var(--green)':'var(--red)'}">${fmt(p.pnl)}</span>`:'';
+      posHTML+=`<div class="position-card">
+        <div class="position-info"><div class="position-market">${p.market}</div>
+          <div class="position-meta"><span>${p.contracts} contracts</span><span>Avg ${p.entry}</span></div></div>
+        <div class="position-size"><div class="amount">${p.sizeStr}</div>${pnlTag?'<div class="pnl">'+pnlTag+'</div>':''}</div></div>`;
+    });
+    posHTML+=`</div>`;
+  });
+
+  // Render ungrouped positions
+  allPos.forEach((p,i)=>{
+    const pnlTag=p.pnl!=null?`<span style="color:${p.pnl>=0?'var(--green)':'var(--red)'}">${fmt(p.pnl)}</span>`:'';
+    posHTML+=`<div class="position-card loading" style="animation-delay:${.35+i*.03}s">
       <span class="position-bot ${p.bot}">${p.bot.toUpperCase()}</span>
       <div class="position-info"><div class="position-market">${p.market}</div>
-        <div class="position-meta"><span>${p.contracts} contracts</span><span>Entry ${p.entry}</span>${p.pnl?`<span style="color:${p.pnl.includes('-')?'var(--red)':'var(--green)'}">P&L ${p.pnl}</span>`:''}</div></div>
+        <div class="position-meta"><span>${p.contracts} contracts</span><span>Entry ${p.entry}</span></div></div>
       <span class="side-pill ${p.side.toLowerCase()}">${p.side}</span>
-      <div class="position-size"><div class="amount">${p.size}</div></div></div>`).join('');
+      <div class="position-size"><div class="amount">${p.sizeStr}</div>${pnlTag?'<div class="pnl">'+pnlTag+'</div>':''}</div></div>`;
+  });
 
-  // Trades
-  const rt=trades.slice(0,20);
+  $('positions').innerHTML=posHTML||'<div class="card empty-state">No open positions</div>';
+
+  // Trades - filter out ones with no timestamp
+  const rt=trades.filter(t=>t.timestamp).slice(0,20);
   $('trades').innerHTML=rt.length===0?'<div class="empty-state">No recent trades</div>':
     rt.map(t=>{
-      const time=t.timestamp?new Date(t.timestamp):null;
-      const ts=time?time.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'}):'—';
+      const time=new Date(t.timestamp);
+      const ts=time.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'});
       const bot=(t._bot||'').toLowerCase();
       const act=(t.action||'').toUpperCase();
       const isBuy=act.includes('BUY')||act.includes('PLACE');
