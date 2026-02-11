@@ -1,6 +1,6 @@
 const https = require('http');
 
-const VPS = 'http://46.225.12.120:8888';
+const VPS = 'http://46.225.12.120';
 
 module.exports = async (req, res) => {
   const path = req.query.path || '/api/overview';
