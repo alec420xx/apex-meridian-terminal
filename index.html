@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX · MERIDIAN — Prediction Market Terminal</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0a0a0a; --bg2: #111; --border: #333; --green: #00ff00; --red: #ff4444;
+  --orange: #ff8c00; --yellow: #ffcc00; --blue: #4488ff; --cyan: #00cccc;
+  --dim: #666; --text: #cccccc; --white: #ffffff;
+}
+body { background: var(--bg); color: var(--green); font-family: 'Consolas','Courier New',monospace; font-size: 12px; overflow-x: hidden; }
+a { color: var(--cyan); text-decoration: none; }
+
+/* Header */
+#header { background: #001; border-bottom: 1px solid var(--orange); padding: 4px 8px; display: flex; align-items: center; justify-content: space-between; }
+#header .title { color: var(--orange); font-size: 14px; font-weight: bold; letter-spacing: 2px; }
+#header .clock { color: var(--yellow); font-size: 13px; }
+.fn-bar { display: flex; gap: 2px; }
+.fn-btn { padding: 2px 8px; font-size: 10px; font-family: inherit; border: 1px solid var(--border); cursor: pointer; font-weight: bold; }
+.fn-btn.o { background: var(--orange); color: #000; }
+.fn-btn.g { background: #006600; color: var(--green); }
+.fn-btn.r { background: #660000; color: var(--red); }
+.fn-btn.b { background: #003366; color: var(--blue); }
+.fn-btn.y { background: #665500; color: var(--yellow); }
+
+/* Layout */
+#main { display: grid; grid-template-columns: 1fr 240px; grid-template-rows: auto auto auto 1fr; gap: 1px; background: var(--border); height: calc(100vh - 30px); }
+.panel { background: var(--bg); padding: 6px; overflow: auto; }
+.panel-title { color: var(--orange); font-size: 11px; font-weight: bold; border-bottom: 1px solid var(--border); padding-bottom: 3px; margin-bottom: 4px; letter-spacing: 1px; }
+
+/* Portfolio */
+#portfolio { grid-column: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); }
+.bot-panel { background: var(--bg); padding: 6px; }
+.bot-name { color: var(--orange); font-size: 13px; font-weight: bold; }
+.stat-row { display: flex; justify-content: space-between; padding: 1px 0; }
+.stat-label { color: var(--dim); }
+.stat-val { color: var(--green); }
+.stat-val.red { color: var(--red); }
+.stat-val.dim { color: var(--dim); }
+.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+.status-dot.on { background: var(--green); box-shadow: 0 0 4px var(--green); }
+.status-dot.off { background: var(--red); }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; font-size: 11px; }
+th { color: var(--orange); text-align: left; padding: 2px 4px; border-bottom: 1px solid var(--border); font-weight: normal; text-transform: uppercase; font-size: 10px; }
+td { padding: 2px 4px; border-bottom: 1px solid #1a1a1a; color: var(--text); }
+tr:hover td { background: #111; }
+.pos { color: var(--green); }
+.neg { color: var(--red); }
+
+/* Crypto sidebar */
+#crypto { grid-column: 2; grid-row: 1 / -1; border-left: 1px solid var(--border); }
+.crypto-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid #1a1a1a; }
+.crypto-sym { color: var(--yellow); font-weight: bold; font-size: 12px; }
+.crypto-price { color: var(--white); font-size: 12px; }
+.crypto-chg { font-size: 11px; }
+.sparkline { height: 20px; }
+.sparkline canvas { height: 20px; }
+
+/* Performance */
+.perf-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.perf-box { text-align: center; padding: 4px; border: 1px solid var(--border); }
+.perf-box .val { font-size: 16px; font-weight: bold; }
+.perf-box .lbl { color: var(--dim); font-size: 10px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+
+/* Refresh indicator */
+#refresh-bar { position: fixed; top: 0; left: 0; height: 2px; background: var(--orange); transition: width 1s linear; z-index: 999; }
+</style>
+</head>
+<body>
+<div id="refresh-bar" style="width:0%"></div>
+
+<div id="header">
+  <div class="fn-bar">
+    <button class="fn-btn o" onclick="refresh()">F5 REFRESH</button>
+    <button class="fn-btn g">F1 PORTFOLIO</button>
+    <button class="fn-btn b">F2 POSITIONS</button>
+    <button class="fn-btn y">F3 TRADES</button>
+    <button class="fn-btn r">F4 SCANNER</button>
+  </div>
+  <div class="title">APEX · MERIDIAN — Prediction Market Terminal</div>
+  <div class="clock" id="clock"></div>
+</div>
+
+<div id="main">
+  <!-- Portfolio Overview -->
+  <div id="portfolio">
+    <div class="bot-panel">
+      <div class="bot-name"><span class="status-dot on" id="apex-status"></span>APEX <span style="color:var(--dim);font-size:10px">POLYMARKET</span></div>
+      <div class="stat-row"><span class="stat-label">Wallet</span><span class="stat-val dim" style="font-size:10px" id="apex-wallet">—</span></div>
+      <div class="stat-row"><span class="stat-label">Invested</span><span class="stat-val" id="apex-invested">—</span></div>
+      <div class="stat-row"><span class="stat-label">Returned</span><span class="stat-val" id="apex-returned">—</span></div>
+      <div class="stat-row"><span class="stat-label">Open Positions</span><span class="stat-val" id="apex-open">—</span></div>
+      <div class="stat-row"><span class="stat-label">Win Rate</span><span class="stat-val" id="apex-winrate">—</span></div>
+      <div class="stat-row"><span class="stat-label">Last Scan</span><span class="stat-val dim" id="apex-scan">—</span></div>
+    </div>
+    <div class="bot-panel">
+      <div class="bot-name"><span class="status-dot on" id="meridian-status"></span>MERIDIAN <span style="color:var(--dim);font-size:10px">KALSHI</span></div>
+      <div class="stat-row"><span class="stat-label">Balance</span><span class="stat-val" id="meridian-balance">—</span></div>
+      <div class="stat-row"><span class="stat-label">Positions</span><span class="stat-val" id="meridian-positions">—</span></div>
+      <div class="stat-row"><span class="stat-label">Last Scan</span><span class="stat-val dim" id="meridian-scan">—</span></div>
+    </div>
+  </div>
+
+  <!-- Crypto Sidebar -->
+  <div id="crypto" class="panel">
+    <div class="panel-title">⚡ CRYPTO PRICES</div>
+    <div id="crypto-list"></div>
+    <div style="margin-top:12px;">
+      <div class="panel-title">📊 PERFORMANCE</div>
+      <div id="perf-stats"></div>
+    </div>
+  </div>
+
+  <!-- Positions -->
+  <div class="panel" style="grid-column:1">
+    <div class="panel-title">📋 OPEN POSITIONS</div>
+    <table>
+      <thead><tr><th>Bot</th><th>Market</th><th>Side</th><th>Qty</th><th>Entry</th><th>Size</th><th>Status</th></tr></thead>
+      <tbody id="positions-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Trades -->
+  <div class="panel" style="grid-column:1">
+    <div class="panel-title">📜 RECENT TRADES</div>
+    <table>
+      <thead><tr><th>Time</th><th>Bot</th><th>Action</th><th>Market</th><th>Size</th><th>Price</th><th>Edge</th><th>Status</th></tr></thead>
+      <tbody id="trades-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Scanner -->
+  <div class="panel" style="grid-column:1">
+    <div class="panel-title">🔍 MARKET SCANNER</div>
+    <div id="scanner-content" style="color:var(--dim)">Scanning for opportunities...</div>
+  </div>
+</div>
+
+<script>
+const API = '';
+const CRYPTOS = ['BTCUSDT','ETHUSDT','SOLUSDT','XRPUSDT','DOGEUSDT'];
+const CRYPTO_NAMES = {BTCUSDT:'BTC',ETHUSDT:'ETH',SOLUSDT:'SOL',XRPUSDT:'XRP',DOGEUSDT:'DOGE'};
+let cryptoHistory = {};
+let refreshCounter = 0;
+
+// Clock
+function updateClock() {
+  const now = new Date();
+  const utc = now.toISOString().slice(11,19);
+  const pst = new Date(now.getTime() - 8*3600000).toISOString().slice(11,19);
+  document.getElementById('clock').textContent = `UTC ${utc} | PST ${pst}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Refresh bar
+function animateRefreshBar() {
+  const bar = document.getElementById('refresh-bar');
+  bar.style.transition = 'none';
+  bar.style.width = '0%';
+  setTimeout(() => {
+    bar.style.transition = 'width 60s linear';
+    bar.style.width = '100%';
+  }, 50);
+}
+
+function fmt(n, dec=2) {
+  if (n == null) return '—';
+  return typeof n === 'number' ? n.toFixed(dec) : n;
+}
+
+function timeAgo(ts) {
+  if (!ts) return '—';
+  const s = Math.floor((Date.now()/1000) - ts);
+  if (s < 60) return s+'s ago';
+  if (s < 3600) return Math.floor(s/60)+'m ago';
+  return Math.floor(s/3600)+'h ago';
+}
+
+function shortTime(iso) {
+  if (!iso) return '—';
+  try { return new Date(iso).toISOString().slice(11,19); } catch { return iso; }
+}
+
+async function loadOverview() {
+  try {
+    const r = await fetch(API+'/api/overview');
+    const d = await r.json();
+    const a = d.apex || {};
+    const m = d.meridian || {};
+    
+    document.getElementById('apex-wallet').textContent = (a.wallet||'').slice(0,10)+'...';
+    document.getElementById('apex-invested').textContent = '$'+fmt(a.total_invested);
+    document.getElementById('apex-returned').textContent = '$'+fmt(a.total_returned);
+    document.getElementById('apex-open').textContent = a.open_positions || 0;
+    document.getElementById('apex-winrate').textContent = a.pnl?.win_rate != null ? fmt(a.pnl.win_rate*100,1)+'%' : '—';
+    document.getElementById('apex-scan').textContent = timeAgo(a.last_scan);
+    document.getElementById('apex-status').className = 'status-dot ' + (a.last_scan && (Date.now()/1000 - a.last_scan) < 3600 ? 'on' : 'off');
+
+    if (m.balance) {
+      const bal = m.balance.balance != null ? m.balance.balance/100 : m.balance;
+      document.getElementById('meridian-balance').textContent = '$'+fmt(typeof bal==='number'?bal:0);
+    }
+    document.getElementById('meridian-positions').textContent = Array.isArray(m.positions) ? m.positions.length : '—';
+    document.getElementById('meridian-scan').textContent = timeAgo(m.last_scan);
+    document.getElementById('meridian-status').className = 'status-dot ' + (m.last_scan && (Date.now()/1000 - m.last_scan) < 3600 ? 'on' : 'off');
+
+    // Performance stats
+    const totalInvested = (a.total_invested||0);
+    const totalReturned = (a.total_returned||0);
+    const pnl = totalReturned - totalInvested;
+    document.getElementById('perf-stats').innerHTML = `
+      <div style="margin-top:6px;">
+        <div class="stat-row"><span class="stat-label">Deployed</span><span class="stat-val">$${fmt(totalInvested)}</span></div>
+        <div class="stat-row"><span class="stat-label">Returned</span><span class="stat-val">$${fmt(totalReturned)}</span></div>
+        <div class="stat-row"><span class="stat-label">P&L</span><span class="stat-val ${pnl>=0?'pos':'neg'}">$${fmt(pnl)}</span></div>
+        <div class="stat-row"><span class="stat-label">Apex Open</span><span class="stat-val">${a.open_positions||0}</span></div>
+        <div class="stat-row"><span class="stat-label">Win Rate</span><span class="stat-val">${a.pnl?.win_rate!=null?fmt(a.pnl.win_rate*100,1)+'%':'—'}</span></div>
+      </div>`;
+  } catch(e) { console.error('Overview error', e); }
+}
+
+async function loadPositions() {
+  try {
+    const r = await fetch(API+'/api/positions');
+    const d = await r.json();
+    const tbody = document.getElementById('positions-body');
+    let html = '';
+    
+    (d.apex||[]).forEach(p => {
+      html += `<tr>
+        <td style="color:var(--cyan)">APEX</td>
+        <td>${(p.market_question||'').slice(0,50)}</td>
+        <td style="color:${p.side==='YES'?'var(--green)':'var(--red)'}">${p.side}</td>
+        <td>${fmt(p.num_tokens,1)}</td>
+        <td>$${fmt(p.entry_price,3)}</td>
+        <td>$${fmt(p.size_usdc)}</td>
+        <td style="color:var(--yellow)">${p.status}</td>
+      </tr>`;
+    });
+    
+    (d.meridian||[]).forEach(p => {
+      const qty = p.total_traded || p.position || 0;
+      html += `<tr>
+        <td style="color:var(--orange)">MERIDIAN</td>
+        <td>${(p.ticker||p.market_ticker||'').slice(0,50)}</td>
+        <td>—</td>
+        <td>${qty}</td>
+        <td>—</td>
+        <td>—</td>
+        <td style="color:var(--yellow)">${p.status||'open'}</td>
+      </tr>`;
+    });
+    
+    if (!html) html = '<tr><td colspan="7" style="color:var(--dim)">No open positions</td></tr>';
+    tbody.innerHTML = html;
+  } catch(e) { console.error('Positions error', e); }
+}
+
+async function loadTrades() {
+  try {
+    const r = await fetch(API+'/api/trades');
+    const d = await r.json();
+    const tbody = document.getElementById('trades-body');
+    let html = '';
+    
+    (d.trades||[]).slice(0,30).forEach(t => {
+      const bot = t._bot || '?';
+      const ts = shortTime(t.timestamp || t.logged_at);
+      const action = t.action || '—';
+      const market = (t.market || t.ticker || '').slice(0,45);
+      const size = t.size_usdc ? '$'+fmt(t.size_usdc) : (t.cost_cents ? '$'+fmt(t.cost_cents/100) : '—');
+      const price = t.price != null ? '$'+fmt(t.price,3) : (t.price_cents ? '$'+fmt(t.price_cents/100,2) : '—');
+      const edge = t.reasoning ? (t.reasoning.match(/Edge=([\d.]+)%/)?.[1]||'') : '';
+      const status = t.status || '—';
+      const statusColor = status==='executed'||status==='placed'?'var(--green)':status==='dry_run'?'var(--dim)':'var(--yellow)';
+      
+      html += `<tr>
+        <td style="color:var(--dim)">${ts}</td>
+        <td style="color:${bot==='APEX'?'var(--cyan)':'var(--orange)'}">${bot}</td>
+        <td>${action}</td>
+        <td>${market}</td>
+        <td>${size}</td>
+        <td>${price}</td>
+        <td style="color:var(--yellow)">${edge?edge+'%':''}</td>
+        <td style="color:${statusColor}">${status}</td>
+      </tr>`;
+    });
+    
+    if (!html) html = '<tr><td colspan="8" style="color:var(--dim)">No trades yet</td></tr>';
+    tbody.innerHTML = html;
+  } catch(e) { console.error('Trades error', e); }
+}
+
+// Crypto prices from Binance
+async function loadCrypto() {
+  try {
+    const r = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbols='+JSON.stringify(CRYPTOS));
+    const data = await r.json();
+    let html = '';
+    data.forEach(t => {
+      const sym = CRYPTO_NAMES[t.symbol] || t.symbol;
+      const price = parseFloat(t.lastPrice);
+      const chg = parseFloat(t.priceChangePercent);
+      const color = chg >= 0 ? 'var(--green)' : 'var(--red)';
+      const arrow = chg >= 0 ? '▲' : '▼';
+      
+      // Store for sparkline
+      if (!cryptoHistory[t.symbol]) cryptoHistory[t.symbol] = [];
+      cryptoHistory[t.symbol].push(price);
+      if (cryptoHistory[t.symbol].length > 30) cryptoHistory[t.symbol].shift();
+      
+      html += `<div class="crypto-row">
+        <div>
+          <div class="crypto-sym">${sym}</div>
+          <canvas id="spark-${t.symbol}" width="80" height="20" class="sparkline"></canvas>
+        </div>
+        <div style="text-align:right">
+          <div class="crypto-price">$${price<1?price.toFixed(4):price<100?price.toFixed(2):price.toLocaleString('en',{maximumFractionDigits:0})}</div>
+          <div class="crypto-chg" style="color:${color}">${arrow} ${Math.abs(chg).toFixed(2)}%</div>
+        </div>
+      </div>`;
+    });
+    document.getElementById('crypto-list').innerHTML = html;
+    
+    // Draw sparklines
+    data.forEach(t => {
+      const canvas = document.getElementById('spark-'+t.symbol);
+      if (!canvas || !cryptoHistory[t.symbol]) return;
+      const ctx = canvas.getContext('2d');
+      const pts = cryptoHistory[t.symbol];
+      if (pts.length < 2) return;
+      const min = Math.min(...pts), max = Math.max(...pts);
+      const range = max - min || 1;
+      ctx.clearRect(0,0,80,20);
+      ctx.strokeStyle = parseFloat(t.priceChangePercent) >= 0 ? '#00ff00' : '#ff4444';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      pts.forEach((p,i) => {
+        const x = (i/(pts.length-1))*80;
+        const y = 18 - ((p-min)/range)*16;
+        i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+    });
+  } catch(e) { console.error('Crypto error', e); }
+}
+
+async function refresh() {
+  animateRefreshBar();
+  await Promise.all([loadOverview(), loadPositions(), loadTrades(), loadCrypto()]);
+}
+
+refresh();
+setInterval(refresh, 60000);
+setInterval(loadCrypto, 15000); // Crypto updates faster
+</script>
+</body>
+</html>
