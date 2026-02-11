@@ -147,7 +147,16 @@ tr:hover td { background: #111; }
 </div>
 
 <script>
-const API = '/api/proxy?path=';
+const API = '';
+let _bundledData = null;
+async function getBundled() {
+  if (!_bundledData) {
+    const r = await fetch('/data.json?t='+Date.now());
+    _bundledData = await r.json();
+    setTimeout(() => _bundledData = null, 55000); // refresh cache every 55s
+  }
+  return _bundledData;
+}
 const CRYPTOS = ['BTCUSDT','ETHUSDT','SOLUSDT','XRPUSDT','DOGEUSDT'];
 const CRYPTO_NAMES = {BTCUSDT:'BTC',ETHUSDT:'ETH',SOLUSDT:'SOL',XRPUSDT:'XRP',DOGEUSDT:'DOGE'};
 let cryptoHistory = {};
@@ -194,8 +203,8 @@ function shortTime(iso) {
 
 async function loadOverview() {
   try {
-    const r = await fetch(API+'/api/overview');
-    const d = await r.json();
+    const bundle = await getBundled();
+    const d = bundle.overview;
     const a = d.apex || {};
     const m = d.meridian || {};
     
@@ -232,8 +241,8 @@ async function loadOverview() {
 
 async function loadPositions() {
   try {
-    const r = await fetch(API+'/api/positions');
-    const d = await r.json();
+    const bundle = await getBundled();
+    const d = bundle.positions;
     const tbody = document.getElementById('positions-body');
     let html = '';
     
@@ -269,8 +278,8 @@ async function loadPositions() {
 
 async function loadTrades() {
   try {
-    const r = await fetch(API+'/api/trades');
-    const d = await r.json();
+    const bundle = await getBundled();
+    const d = bundle.trades;
     const tbody = document.getElementById('trades-body');
     let html = '';
     
