@@ -260,12 +260,19 @@ function renderData(data){
 
   const merPositions=merPos.map(p=>{
     const rpnl=p.realized_pnl&&p.realized_pnl!==0?p.realized_pnl/100:null;
-    const costBasis=p.position>0?(p.market_exposure/100/p.position*100).toFixed(1)+'¢':null;
+    const entryCents=p.position>0?p.market_exposure/p.position:0;
+    const costBasis=entryCents>0?entryCents.toFixed(1)+'¢':null;
+    const curPrice=p.yes_bid||p.last_price||0;
+    const unrealizedPnl=p.position>0&&curPrice>0?(curPrice-entryCents)*p.position/100:null;
+    const pctChange=entryCents>0&&curPrice>0?((curPrice-entryCents)/entryCents*100):null;
     return {
       bot:'meridian',market:parseTicker(p.ticker),side:'YES',
       size:(p.market_exposure||0)/100,sizeStr:fmt((p.market_exposure||0)/100),
       entry:costBasis||'—',contracts:p.position,
-      pnl:rpnl,ticker:p.ticker
+      pnl:unrealizedPnl!=null?unrealizedPnl:rpnl,
+      pctChange:pctChange,
+      curPrice:curPrice,
+      ticker:p.ticker
     };
   });
 
@@ -278,11 +285,13 @@ function renderData(data){
   merPositions.forEach(p=>{
     const gk=getAssetGroup(p.ticker);
     if(gk){
-      if(!groups[gk])groups[gk]={positions:[],totalExp:0,totalPnl:0,totalContracts:0,asset:''};
+      if(!groups[gk])groups[gk]={positions:[],totalExp:0,totalPnl:0,totalContracts:0,asset:'',totalCost:0,totalValue:0};
       groups[gk].positions.push(p);
       groups[gk].totalExp+=p.size;
       groups[gk].totalPnl+=(p.pnl||0);
       groups[gk].totalContracts+=p.contracts;
+      if(p.curPrice&&p.contracts)groups[gk].totalValue+=p.curPrice*p.contracts/100;
+      groups[gk].totalCost+=p.size;
       // Derive asset name
       const m=gk.match(/^(KX[A-Z]+D?)/);
       groups[gk].asset=TM[m[1]]||m[1];
@@ -298,7 +307,9 @@ function renderData(data){
   // Render grouped positions
   Object.entries(groups).forEach(([gk,g])=>{
     const id='grp-'+gk.replace(/[^a-z0-9]/gi,'');
-    const pnlStr=g.totalPnl!==0?`<span style="color:${g.totalPnl>=0?'var(--green)':'var(--red)'}">P&L ${fmt(g.totalPnl)}</span>`:'';
+    const grpPct=g.totalCost>0&&g.totalValue>0?((g.totalValue-g.totalCost)/g.totalCost*100):null;
+    const grpPnlAmt=g.totalValue>0?(g.totalValue-g.totalCost):g.totalPnl;
+    const pnlStr=`<span style="color:${grpPnlAmt>=0?'var(--green)':'var(--red)'}">${grpPnlAmt>=0?'+':''}${fmt(grpPnlAmt)}${grpPct!=null?' ('+(grpPct>=0?'+':'')+grpPct.toFixed(1)+'%)':''}</span>`;
     posHTML+=`<div class="group-header" onclick="this.classList.toggle('open');document.getElementById('${id}').classList.toggle('collapsed')">
       <span class="chevron">▶</span>
       <span class="position-bot meridian">MERIDIAN</span>
@@ -322,13 +333,17 @@ function renderData(data){
 
   // Render ungrouped positions
   allPos.forEach((p,i)=>{
-    const pnlTag=p.pnl!=null?`<span style="color:${p.pnl>=0?'var(--green)':'var(--red)'}">${fmt(p.pnl)}</span>`:'';
+    const pnlVal=p.pnl!=null?p.pnl:null;
+    const pnlTag=pnlVal!=null?`<span style="color:${pnlVal>=0?'var(--green)':'var(--red)'}">${pnlVal>=0?'+':''}${fmt(pnlVal)}</span>`:'';
+    const pctColor=p.pctChange!=null&&p.pctChange>=0?'var(--green)':'var(--red)';
+    const pctTag=p.pctChange!=null?`<span style="color:${pctColor};font-weight:600">${p.pctChange>=0?'+':''}${p.pctChange.toFixed(1)}%</span>`:'';
+    const priceTag=p.curPrice?` · Now ${p.curPrice}¢`:'';
     posHTML+=`<div class="position-card loading" style="animation-delay:${.35+i*.03}s">
       <span class="position-bot ${p.bot}">${p.bot.toUpperCase()}</span>
       <div class="position-info"><div class="position-market">${p.market}</div>
-        <div class="position-meta"><span>${p.contracts} contracts</span><span>Entry ${p.entry}</span></div></div>
+        <div class="position-meta"><span>${p.contracts} contracts</span><span>Entry ${p.entry}${priceTag}</span></div></div>
       <span class="side-pill ${p.side.toLowerCase()}">${p.side}</span>
-      <div class="position-size"><div class="amount">${p.sizeStr}</div>${pnlTag?'<div class="pnl">'+pnlTag+'</div>':''}</div></div>`;
+      <div class="position-size"><div class="amount">${p.sizeStr}</div>${pctTag?'<div class="pnl">'+pctTag+'</div>':''}${pnlTag?'<div class="pnl">'+pnlTag+'</div>':''}</div></div>`;
   });
 
   $('positions').innerHTML=posHTML||'<div class="card empty-state">No open positions</div>';
