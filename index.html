@@ -3,137 +3,215 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>APEX · MERIDIAN</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Investing</title>
 <style>
-:root{--bg:#0F172A;--bg2:#1E293B;--surface:rgba(30,41,59,0.7);--border:rgba(148,163,184,0.1);--text:#F1F5F9;--text2:#94A3B8;--text3:#64748B;--blue:#3B82F6;--blue2:#60A5FA;--green:#22C55E;--green-bg:rgba(34,197,94,0.15);--red:#EF4444;--red-bg:rgba(239,68,68,0.15);--purple:#A855F7}
+:root{--bg:#1E1F23;--bg2:#27282D;--surface:#2C2D33;--text:#FFFFFF;--text2:#9DA0A6;--text3:#6B6E75;--green:#00C805;--red:#FF5000;--separator:rgba(255,255,255,0.06)}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
-.container{max-width:960px;margin:0 auto;padding:0 16px}
-.header{padding:20px 0 12px;position:sticky;top:0;z-index:100;background:rgba(15,23,42,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.header-inner{display:flex;justify-content:space-between;align-items:center}
-.header-left h1{font-size:20px;font-weight:800;letter-spacing:.5px;background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.header-left p{font-size:11px;color:var(--text3);margin-top:2px;letter-spacing:.3px}
-.header-clock{font-size:14px;font-weight:600;color:var(--text2);font-variant-numeric:tabular-nums}
-.header-updated{font-size:10px;color:var(--text3);margin-top:2px;text-align:right}
-.ticker-bar{overflow-x:auto;white-space:nowrap;padding:12px 0;border-bottom:1px solid var(--border);scrollbar-width:none}
-.ticker-bar::-webkit-scrollbar{display:none}
-.ticker-item{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;margin-right:8px;background:var(--surface);border-radius:10px;border:1px solid var(--border)}
-.ticker-symbol{font-size:11px;font-weight:700;color:var(--text2)}
-.ticker-price{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
-.ticker-change{font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
-.ticker-change.up{color:var(--green)}.ticker-change.down{color:var(--red)}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;backdrop-filter:blur(10px);transition:transform .2s,box-shadow .2s}
-.card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3),0 0 0 1px rgba(148,163,184,.08)}
-.section-title{font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
-.section-count{font-size:12px;font-weight:600;color:var(--text3)}
-.total-value-card{text-align:center;padding:24px 20px;margin-top:16px;background:linear-gradient(135deg,rgba(59,130,246,0.08),rgba(168,85,247,0.08));border:1px solid rgba(59,130,246,0.15)}
-.total-value-card .label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-.total-value-card .value{font-size:40px;font-weight:800;background:linear-gradient(135deg,var(--blue2),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-variant-numeric:tabular-nums}
-.total-value-card .sub{font-size:12px;color:var(--text3);margin-top:4px}
-.portfolio-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:600px){.portfolio-grid{grid-template-columns:1fr}}
-.portfolio-card{position:relative;overflow:hidden}
-.portfolio-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
-.portfolio-card.apex::before{background:linear-gradient(90deg,var(--blue),var(--purple))}
-.portfolio-card.meridian::before{background:linear-gradient(90deg,var(--green),var(--blue))}
-.portfolio-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.portfolio-name{font-size:14px;font-weight:700;letter-spacing:.5px}
-.bot-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
-.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
-.status-dot.active{animation:pulse 2s infinite}
-.status-dot.inactive{background:var(--text3);box-shadow:none}
-@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 8px var(--green)}50%{opacity:.5;box-shadow:0 0 16px var(--green)}}
-.portfolio-balance{font-size:28px;font-weight:800;margin-bottom:16px;font-variant-numeric:tabular-nums}
-.portfolio-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.stat-item label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;display:block}
-.stat-item span{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
-.perf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-@media(max-width:600px){.perf-grid{grid-template-columns:repeat(2,1fr)}}
-.perf-card{text-align:center;padding:16px 12px}
-.perf-card .value{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
-.perf-card .label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
-.position-card{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:6px;background:var(--surface);border:1px solid var(--border);border-radius:12px;transition:all .2s}
-.position-card:hover{border-color:rgba(148,163,184,.2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.15)}
-.position-bot{font-size:9px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:.5px;white-space:nowrap;flex-shrink:0}
-.position-bot.apex{background:rgba(59,130,246,.15);color:var(--blue2)}
-.position-bot.meridian{background:rgba(34,197,94,.15);color:var(--green)}
-.position-info{flex:1;min-width:0}
-.position-market{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.position-meta{font-size:10px;color:var(--text3);margin-top:1px;display:flex;gap:8px;flex-wrap:wrap}
-.side-pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;letter-spacing:.3px;flex-shrink:0}
-.side-pill.yes{background:var(--green-bg);color:var(--green)}
-.side-pill.no{background:var(--red-bg);color:var(--red)}
-.position-size{text-align:right;flex-shrink:0}
-.position-size .amount{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
-.position-size .pnl{font-size:10px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:1px}
-.group-header{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:6px;background:var(--surface);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .2s;user-select:none}
-.group-header:hover{border-color:rgba(148,163,184,.2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.15)}
-.group-header .chevron{font-size:12px;color:var(--text3);transition:transform .2s;flex-shrink:0}
-.group-header.open .chevron{transform:rotate(90deg)}
-.group-header .position-info{flex:1}
-.group-children{overflow:hidden;transition:max-height .3s ease}
-.group-children.collapsed{max-height:0!important}
-.group-children .position-card{margin-left:24px;opacity:0.85}
-.trade-item{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border)}
-.trade-item:last-child{border-bottom:none}
-.trade-time{font-size:10px;color:var(--text3);min-width:44px;padding-top:2px;font-variant-numeric:tabular-nums}
-.trade-content{flex:1;min-width:0}
-.trade-header{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.trade-action{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.3px}
-.trade-action.buy{background:var(--green-bg);color:var(--green)}
-.trade-action.sell{background:var(--red-bg);color:var(--red)}
-.trade-market{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trade-details{font-size:10px;color:var(--text3);margin-top:2px}
-.trade-status{font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;margin-left:auto;flex-shrink:0}
-.trade-status.submitted{background:rgba(59,130,246,.15);color:var(--blue2)}
-.trade-status.error{background:var(--red-bg);color:var(--red)}
-.trade-status.placed{background:rgba(34,197,94,.15);color:var(--green)}
-.trade-status.dry_run{background:rgba(148,163,184,.15);color:var(--text3)}
-.empty-state{text-align:center;padding:32px;color:var(--text3);font-size:13px}
-.footer{padding:32px 0;text-align:center}
-.footer p{font-size:11px;color:var(--text3)}
-.loading{opacity:0;animation:fadeIn .4s ease forwards}
-@keyframes fadeIn{to{opacity:1}}
-.skeleton{background:linear-gradient(90deg,var(--surface) 25%,rgba(148,163,184,0.08) 50%,var(--surface) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;height:120px}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:80px;max-width:500px;margin:0 auto}
+.screen{padding:0 16px}
+
+/* Top bar */
+.top-bar{padding:env(safe-area-inset-top,20px) 16px 0;position:sticky;top:0;z-index:100;background:var(--bg)}
+.top-label{font-size:13px;color:var(--text2);font-weight:400;margin-bottom:2px}
+.portfolio-value{font-size:36px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.portfolio-change{font-size:14px;font-weight:500;margin-top:2px;font-variant-numeric:tabular-nums}
+.portfolio-change.up{color:var(--green)}
+.portfolio-change.down{color:var(--red)}
+
+/* Chart area */
+.chart-area{height:180px;margin:20px 0 8px;position:relative;overflow:hidden}
+.chart-line{position:absolute;bottom:0;left:0;right:0;height:100%}
+.chart-line svg{width:100%;height:100%}
+.time-buttons{display:flex;gap:0;padding:4px 0 16px}
+.time-btn{flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--text3);padding:6px 0;border:none;background:none;cursor:pointer;border-radius:16px;transition:all .2s}
+.time-btn.active{color:var(--green);background:rgba(0,200,5,0.1)}
+
+/* Separator */
+.sep{height:1px;background:var(--separator);margin:0 -16px}
+
+/* Section row */
+.row{display:flex;justify-content:space-between;align-items:center;padding:16px 0}
+.row-label{font-size:15px;color:var(--text);font-weight:400}
+.row-value{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* Bot status */
+.bot-row{display:flex;align-items:center;padding:14px 0;gap:10px}
+.bot-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.bot-dot.on{background:var(--green);box-shadow:0 0 6px var(--green)}
+.bot-dot.off{background:var(--text3)}
+.bot-name{font-size:15px;font-weight:500;flex:1}
+.bot-name span{color:var(--text3);font-weight:400}
+.bot-bal{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* Section headers */
+.section-header{display:flex;justify-content:space-between;align-items:baseline;padding:24px 0 8px}
+.section-title{font-size:18px;font-weight:700}
+.section-count{font-size:14px;color:var(--text3);font-weight:400}
+
+/* Position rows */
+.pos-row{display:flex;align-items:center;padding:12px 0;cursor:pointer}
+.pos-left{flex:1;min-width:0}
+.pos-name{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:8px}
+.pos-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.3px;flex-shrink:0}
+.pos-badge.apex{background:rgba(59,130,246,0.15);color:#60A5FA}
+.pos-badge.meridian{background:rgba(0,200,5,0.12);color:var(--green)}
+.pos-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.pos-right{text-align:right;flex-shrink:0;margin-left:12px}
+.pos-val{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.pos-pct{font-size:12px;font-weight:500;margin-top:1px;font-variant-numeric:tabular-nums}
+.pos-pct.up{color:var(--green)}
+.pos-pct.down{color:var(--red)}
+
+/* Group expand */
+.group-children{overflow:hidden;max-height:0;transition:max-height .3s ease}
+.group-children.open{max-height:2000px}
+.group-children .pos-row{padding-left:16px;opacity:0.8}
+
+/* Activity */
+.activity-row{padding:12px 0}
+.activity-text{font-size:14px;color:var(--text);line-height:1.4}
+.activity-text .dim{color:var(--text3)}
+
+/* Crypto watchlist */
+.crypto-row{display:flex;align-items:center;padding:12px 0}
+.crypto-sym{font-size:15px;font-weight:600;width:56px}
+.crypto-name{font-size:12px;color:var(--text3);flex:1}
+.crypto-price{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right;margin-right:12px}
+.crypto-chg{font-size:13px;font-weight:500;width:64px;text-align:right;font-variant-numeric:tabular-nums}
+.crypto-chg.up{color:var(--green)}
+.crypto-chg.down{color:var(--red)}
+
+/* Bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--separator);display:flex;justify-content:space-around;padding:8px 0 env(safe-area-inset-bottom,8px);z-index:200;max-width:500px;margin:0 auto}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--text3);padding:4px 12px;cursor:pointer}
+.nav-item.active{color:var(--text)}
+.nav-item svg{width:22px;height:22px;fill:currentColor}
+
+/* Scrollable sections */
+.nav-section{display:none}
+.nav-section.active{display:block}
+
+/* Trades tab */
+.trade-row{padding:12px 0}
+.trade-main{font-size:14px;font-weight:500;display:flex;align-items:center;gap:6px}
+.trade-action{font-size:11px;font-weight:700;padding:2px 6px;border-radius:4px}
+.trade-action.buy{background:rgba(0,200,5,0.12);color:var(--green)}
+.trade-action.sell{background:rgba(255,80,0,0.12);color:var(--red)}
+.trade-detail{font-size:12px;color:var(--text3);margin-top:2px}
+.trade-status{font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;margin-left:auto}
+.trade-status.placed{background:rgba(0,200,5,0.12);color:var(--green)}
+.trade-status.submitted{background:rgba(59,130,246,0.15);color:#60A5FA}
+.trade-status.error{background:rgba(255,80,0,0.12);color:var(--red)}
+.trade-status.dry_run{background:rgba(255,255,255,0.06);color:var(--text3)}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .3s ease forwards}
 </style>
 </head>
 <body>
-<div class="header"><div class="container header-inner">
-  <div class="header-left"><h1>APEX · MERIDIAN</h1><p>Prediction Market Trading</p></div>
-  <div class="header-right"><div class="header-clock" id="clock"></div><div class="header-updated" id="lastUpdated">Loading...</div></div>
-</div></div>
-<div class="container">
-  <div class="ticker-bar" id="tickerBar">
-    <div class="ticker-item"><span class="ticker-symbol">BTC</span><span class="ticker-price" id="p-BTC">—</span><span class="ticker-change" id="c-BTC"></span></div>
-    <div class="ticker-item"><span class="ticker-symbol">ETH</span><span class="ticker-price" id="p-ETH">—</span><span class="ticker-change" id="c-ETH"></span></div>
-    <div class="ticker-item"><span class="ticker-symbol">SOL</span><span class="ticker-price" id="p-SOL">—</span><span class="ticker-change" id="c-SOL"></span></div>
-    <div class="ticker-item"><span class="ticker-symbol">XRP</span><span class="ticker-price" id="p-XRP">—</span><span class="ticker-change" id="c-XRP"></span></div>
-    <div class="ticker-item"><span class="ticker-symbol">DOGE</span><span class="ticker-price" id="p-DOGE">—</span><span class="ticker-change" id="c-DOGE"></span></div>
-  </div>
-  <div id="totalValue"></div>
-  <div class="section-title">Portfolio</div>
-  <div class="portfolio-grid" id="portfolioGrid"><div class="skeleton"></div><div class="skeleton"></div></div>
-  <div class="section-title">Performance</div>
-  <div class="perf-grid" id="perfGrid"></div>
-  <div class="section-title" id="positionsTitle">Open Positions</div>
-  <div id="positions"><div class="skeleton" style="height:200px"></div></div>
-  <div class="section-title">Recent Trades</div>
-  <div class="card" id="trades" style="padding:8px 16px"><div class="skeleton" style="height:150px;border-radius:8px"></div></div>
-  <div class="footer"><p>Auto-refreshes every 60s</p></div>
+
+<div class="top-bar">
+  <div class="top-label">Investing</div>
+  <div class="portfolio-value" id="totalValue">—</div>
+  <div class="portfolio-change" id="totalChange"></div>
 </div>
+
+<div class="screen">
+  <!-- Chart placeholder -->
+  <div class="chart-area" id="chartArea">
+    <div class="chart-line">
+      <svg viewBox="0 0 400 160" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--green)" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="var(--green)" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path id="chartFill" fill="url(#cg)" d="M0,160 L0,160 400,160Z"/>
+        <path id="chartPath" fill="none" stroke="var(--green)" stroke-width="2" d="M0,160 L400,160"/>
+      </svg>
+    </div>
+  </div>
+  <div class="time-buttons">
+    <button class="time-btn active">1D</button>
+    <button class="time-btn">1W</button>
+    <button class="time-btn">1M</button>
+    <button class="time-btn">ALL</button>
+  </div>
+
+  <!-- NAV SECTIONS -->
+  <div id="sec-portfolio" class="nav-section active">
+    <div class="sep"></div>
+    <div class="row"><span class="row-label">Buying Power</span><span class="row-value" id="buyingPower">—</span></div>
+    <div class="sep"></div>
+
+    <!-- Bot status -->
+    <div id="botStatus"></div>
+    <div class="sep"></div>
+
+    <!-- Positions -->
+    <div class="section-header">
+      <span class="section-title">Positions</span>
+      <span class="section-count" id="posCount"></span>
+    </div>
+    <div id="positions"></div>
+    <div class="sep" style="margin-top:8px"></div>
+
+    <!-- Recent Activity -->
+    <div class="section-header"><span class="section-title">Recent Activity</span></div>
+    <div id="activity"></div>
+    <div class="sep" style="margin-top:8px"></div>
+
+    <!-- Crypto -->
+    <div class="section-header"><span class="section-title">Crypto</span></div>
+    <div id="crypto"></div>
+    <div style="height:24px"></div>
+  </div>
+
+  <div id="sec-positions" class="nav-section">
+    <div class="section-header"><span class="section-title">All Positions</span><span class="section-count" id="posCount2"></span></div>
+    <div id="positionsAll"></div>
+  </div>
+
+  <div id="sec-trades" class="nav-section">
+    <div class="section-header"><span class="section-title">Recent Trades</span></div>
+    <div id="tradesAll"></div>
+  </div>
+
+  <div id="sec-markets" class="nav-section">
+    <div class="section-header"><span class="section-title">Market Data</span></div>
+    <div id="cryptoFull"></div>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bottom-nav">
+  <div class="nav-item active" data-sec="portfolio">
+    <svg viewBox="0 0 24 24"><path d="M3 13h1v7h4v-5h4v5h4v-7h1l-7-7-7 7z"/><path d="M10 2v2h4V2h-4z" fill="none"/></svg>
+    Portfolio
+  </div>
+  <div class="nav-item" data-sec="positions">
+    <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+    Positions
+  </div>
+  <div class="nav-item" data-sec="trades">
+    <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+    Trades
+  </div>
+  <div class="nav-item" data-sec="markets">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+    Markets
+  </div>
+</div>
+
 <script>
 const TM={KXBTC:'Bitcoin',KXBTCD:'Bitcoin',KXETH:'Ethereum',KXETHD:'Ethereum',KXSOL:'Solana',KXSOLD:'Solana',KXXRP:'XRP',KXXRPD:'XRP',KXDOGE:'Dogecoin',KXDOGED:'Dogecoin',KXRECSSNBER:'Recession 2026',KXLARGECUT:'Fed Large Rate Cut',KXAISPIKE:'AI Capability Growth',KXCABLEAVE:'Trump Cabinet Leave',KXFEDMEET:'Fed Emergency Meeting',KXINXPOS:"S&P Positive 2026",KXWARSHNOM:'Warren Sherman Nom.'};
 
 function getAssetGroup(ticker){
   const m=ticker.match(/^(KX[A-Z]+D?)-/);
-  if(!m) return null;
-  const prefix=m[1];
-  // Group XRP range bets (B prefix = bucket/range)
+  if(!m)return null;
   const isRange=ticker.match(/-B\d/);
-  if(isRange) return prefix+'-RANGE';
+  if(isRange)return m[1]+'-RANGE';
   return null;
 }
 
@@ -157,221 +235,235 @@ function parseTicker(t){
 
 const $=id=>document.getElementById(id);
 const fmt=(n,d=2)=>n==null?'—':'$'+Number(n).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});
-const pct=n=>n==null?'—':(n*100).toFixed(1)+'%';
+function isActive(ts){if(!ts)return false;const now=Date.now()/1000;const t=ts>1e12?ts/1000:ts;return(now-t)<7200}
 
-function relTime(date){
-  const s=Math.floor((Date.now()-date.getTime())/1000);
-  if(s<60)return 'just now';
-  if(s<3600)return Math.floor(s/60)+'m ago';
-  if(s<86400)return Math.floor(s/3600)+'h ago';
-  return Math.floor(s/86400)+'d ago';
-}
+// Nav switching
+document.querySelectorAll('.nav-item').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    document.querySelectorAll('.nav-section').forEach(s=>s.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('sec-'+el.dataset.sec).classList.add('active');
+  });
+});
 
-function updateClock(){$('clock').textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZone:'UTC'})+' UTC'}
-setInterval(updateClock,1000);updateClock();
+// Time button switching
+document.querySelectorAll('.time-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
 
+// Crypto
 const SYMS=['BTCUSDT','ETHUSDT','SOLUSDT','XRPUSDT','DOGEUSDT'];
-const SH={BTCUSDT:'BTC',ETHUSDT:'ETH',SOLUSDT:'SOL',XRPUSDT:'XRP',DOGEUSDT:'DOGE'};
+const NAMES={BTCUSDT:['BTC','Bitcoin'],ETHUSDT:['ETH','Ethereum'],SOLUSDT:['SOL','Solana'],XRPUSDT:['XRP','XRP'],DOGEUSDT:['DOGE','Dogecoin']};
+let cryptoData={};
+
 async function fetchCrypto(){
   const urls=['https://api.binance.com/api/v3/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(SYMS)),
               'https://api.binance.us/api/v3/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(SYMS))];
   for(const url of urls){
     try{
       const r=await fetch(url);if(!r.ok)continue;
-      (await r.json()).forEach(t=>{const s=SH[t.symbol],p=parseFloat(t.lastPrice),c=parseFloat(t.priceChangePercent);
-        $('p-'+s).textContent=p>=100?'$'+Math.round(p).toLocaleString():'$'+p.toFixed(p>=1?2:4);
-        const e=$('c-'+s);e.textContent=(c>=0?'+':'')+c.toFixed(1)+'%';e.className='ticker-change '+(c>=0?'up':'down');});
-      return;
+      const data=await r.json();
+      data.forEach(t=>{
+        const [sym,name]=NAMES[t.symbol];
+        cryptoData[sym]={price:parseFloat(t.lastPrice),pct:parseFloat(t.priceChangePercent),name};
+      });
+      renderCrypto();return;
     }catch(e){}
   }
 }
+
+function renderCrypto(){
+  const html=Object.entries(cryptoData).map(([sym,d])=>{
+    const pFmt=d.price>=100?'$'+Math.round(d.price).toLocaleString():'$'+d.price.toFixed(d.price>=1?2:4);
+    const cls=d.pct>=0?'up':'down';
+    return `<div class="crypto-row">
+      <span class="crypto-sym">${sym}</span>
+      <span class="crypto-name">${d.name}</span>
+      <span class="crypto-price">${pFmt}</span>
+      <span class="crypto-chg ${cls}">${d.pct>=0?'+':''}${d.pct.toFixed(2)}%</span>
+    </div>`;
+  }).join('');
+  $('crypto').innerHTML=html;
+  $('cryptoFull').innerHTML=html;
+}
+
 fetchCrypto();setInterval(fetchCrypto,15000);
 
-function isActive(ts){if(!ts)return false;const now=Date.now()/1000;const t=ts>1e12?ts/1000:ts;return(now-t)<7200}
+// Generate fake chart line
+function genChart(positive){
+  const pts=40;const vals=[];let v=80;
+  for(let i=0;i<pts;i++){v+=Math.random()*10-4.5+(positive?0.3:-0.3);v=Math.max(20,Math.min(150,v));vals.push(v)}
+  const xs=vals.map((_,i)=>(i/(pts-1))*400);
+  const path=vals.map((v,i)=>(i===0?'M':'L')+xs[i].toFixed(1)+','+v.toFixed(1)).join(' ');
+  const fill=path+' L400,160 L0,160Z';
+  $('chartPath').setAttribute('d',path);
+  $('chartFill').setAttribute('d',fill);
+  const color=positive?'var(--green)':'var(--red)';
+  $('chartPath').setAttribute('stroke',color);
+  document.querySelector('#cg stop:first-child').setAttribute('stop-color',color);
+}
 
 async function loadData(){try{const r=await fetch('/data.json?'+Date.now());renderData(await r.json())}catch(e){}}
 
 function renderData(data){
   const o=data.overview||{},apex=o.apex||{},mer=o.meridian||{},pos=data.positions||{},trades=(data.trades||{}).trades||[];
-  const ts=o.timestamp||new Date().toISOString();
-  const updDate=new Date(ts);
-  $('lastUpdated').textContent='Updated '+relTime(updDate);
 
   const merCash=(mer.balance||0)/100;
   const merPortValue=(mer.portfolio_value||0)/100;
   const merTotal=merCash+merPortValue;
-  const merStarting=4090; // Starting capital
+  const merStarting=4090;
   const allMerPositions=mer.positions||pos.meridian||[];
   const merPos=allMerPositions.filter(p=>p.position>0);
-  const merExp=merPos.reduce((s,p)=>s+(p.market_exposure||0),0)/100;
   const merPnl=merTotal-merStarting;
-  const merFees=allMerPositions.reduce((s,p)=>s+(p.fees_paid||0),0)/100;
   const ap=apex.pnl||{};
-
-  // Total portfolio value
   const apexBal=apex.total_invested||0;
   const totalPortfolio=merTotal+apexBal;
   const totalPnl=merPnl+(ap.realized_pnl||0);
-  $('totalValue').innerHTML=`<div class="card total-value-card loading" style="animation-delay:.02s">
-    <div class="label">Total Portfolio Value</div>
-    <div class="value">${fmt(totalPortfolio)}</div>
-    <div class="sub">Apex ${fmt(apexBal)} · Meridian ${fmt(merTotal)}</div></div>`;
+  const totalPct=totalPortfolio>0?(totalPnl/(totalPortfolio-totalPnl)*100):0;
 
-  $('portfolioGrid').innerHTML=`
-    <div class="card portfolio-card apex loading" style="animation-delay:.05s">
-      <div class="portfolio-header"><span class="portfolio-name">APEX</span>
-        <div class="bot-status"><div class="status-dot ${isActive(apex.last_scan)?'active':'inactive'}"></div>${isActive(apex.last_scan)?'Active':'Offline'}</div></div>
-      <div class="portfolio-balance">${fmt(apexBal)}</div>
-      <div class="portfolio-stats">
-        <div class="stat-item"><label>Invested</label><span>${fmt(apexBal)}</span></div>
-        <div class="stat-item"><label>Returned</label><span>${fmt(apex.total_returned||0)}</span></div>
-        <div class="stat-item"><label>P&amp;L</label><span style="color:${(ap.realized_pnl||0)>=0?'var(--green)':'var(--red)'}">${fmt(ap.realized_pnl||0)}</span></div>
-        <div class="stat-item"><label>Open</label><span>${apex.open_positions||0}</span></div>
-        <div class="stat-item"><label>Win Rate</label><span>${pct(ap.win_rate||0)}</span></div>
-        <div class="stat-item"><label>W / L</label><span>${ap.wins||0} / ${ap.losses||0}</span></div>
-      </div></div>
-    <div class="card portfolio-card meridian loading" style="animation-delay:.1s">
-      <div class="portfolio-header"><span class="portfolio-name">MERIDIAN</span>
-        <div class="bot-status"><div class="status-dot ${isActive(mer.last_scan)?'active':'inactive'}"></div>${isActive(mer.last_scan)?'Active':'Offline'}</div></div>
-      <div class="portfolio-balance">${fmt(merTotal)}</div>
-      <div class="portfolio-stats">
-        <div class="stat-item"><label>Cash</label><span>${fmt(merCash)}</span></div>
-        <div class="stat-item"><label>Positions</label><span>${fmt(merPortValue)}</span></div>
-        <div class="stat-item"><label>P&amp;L</label><span style="color:${merPnl>=0?'var(--green)':'var(--red)'}">${fmt(merPnl)}</span></div>
-        <div class="stat-item"><label>Fees</label><span>${fmt(merFees)}</span></div>
-        <div class="stat-item"><label>Open</label><span>${merPos.length}</span></div>
-      </div></div>`;
+  // Top bar
+  $('totalValue').textContent=fmt(totalPortfolio);
+  const cls=totalPnl>=0?'up':'down';
+  $('totalChange').className='portfolio-change '+cls;
+  $('totalChange').textContent=(totalPnl>=0?'+':'')+fmt(totalPnl)+' ('+(totalPnl>=0?'+':'')+totalPct.toFixed(2)+'%) All time';
 
-  const totalDep=apexBal+merExp;
-  $('perfGrid').innerHTML=`
-    <div class="card perf-card loading" style="animation-delay:.15s"><div class="value">${fmt(totalDep)}</div><div class="label">Total Deployed</div></div>
-    <div class="card perf-card loading" style="animation-delay:.2s"><div class="value" style="color:${totalPnl>=0?'var(--green)':'var(--red)'}">${fmt(totalPnl)}</div><div class="label">Total P&amp;L</div></div>
-    <div class="card perf-card loading" style="animation-delay:.25s"><div class="value">${pct(ap.win_rate||0)}</div><div class="label">Win Rate</div></div>
-    <div class="card perf-card loading" style="animation-delay:.3s"><div class="value">${(apex.open_positions||0)+merPos.length}</div><div class="label">Positions</div></div>`;
+  genChart(totalPnl>=0);
 
-  // Build positions with grouping
+  // Buying power
+  $('buyingPower').textContent=fmt(merCash+Math.max(0,apexBal-(apex.total_invested||0)));
+
+  // Bot status
+  $('botStatus').innerHTML=`
+    <div class="bot-row">
+      <div class="bot-dot ${isActive(apex.last_scan)?'on':'off'}"></div>
+      <div class="bot-name">APEX <span>· Polymarket</span></div>
+      <div class="bot-bal">${fmt(apexBal)}</div>
+    </div>
+    <div class="bot-row">
+      <div class="bot-dot ${isActive(mer.last_scan)?'on':'off'}"></div>
+      <div class="bot-name">MERIDIAN <span>· Kalshi</span></div>
+      <div class="bot-bal">${fmt(merTotal)}</div>
+    </div>`;
+
+  // Build positions
   const apexPositions=(pos.apex||[]).filter(p=>p.status==='open').map(p=>({
     bot:'apex',market:p.market_question||'Unknown',side:p.side||'YES',
-    size:p.size_usdc,sizeStr:fmt(p.size_usdc),
+    size:p.size_usdc,contracts:p.num_tokens?Math.round(p.num_tokens):0,
     entry:p.entry_price?(p.entry_price*100).toFixed(1)+'¢':'—',
-    contracts:p.num_tokens?Math.round(p.num_tokens):'—',
-    pnl:null,ticker:''
+    pnl:null,pctChange:null,curPrice:null,ticker:''
   }));
 
   const merPositions=merPos.map(p=>{
-    const rpnl=p.realized_pnl&&p.realized_pnl!==0?p.realized_pnl/100:null;
     const entryCents=p.position>0?p.market_exposure/p.position:0;
-    const costBasis=entryCents>0?entryCents.toFixed(1)+'¢':null;
     const curPrice=p.yes_bid||p.last_price||0;
     const unrealizedPnl=p.position>0&&curPrice>0?(curPrice-entryCents)*p.position/100:null;
     const pctChange=entryCents>0&&curPrice>0?((curPrice-entryCents)/entryCents*100):null;
     return {
       bot:'meridian',market:parseTicker(p.ticker),side:'YES',
-      size:(p.market_exposure||0)/100,sizeStr:fmt((p.market_exposure||0)/100),
-      entry:costBasis||'—',contracts:p.position,
-      pnl:unrealizedPnl!=null?unrealizedPnl:rpnl,
-      pctChange:pctChange,
-      curPrice:curPrice,
-      ticker:p.ticker
+      size:(p.market_exposure||0)/100,contracts:p.position,
+      entry:entryCents>0?entryCents.toFixed(1)+'¢':'—',
+      pnl:unrealizedPnl,pctChange,curPrice,ticker:p.ticker
     };
   });
 
-  // Group by asset for range bets
-  const allPos=[];
-  const groups={};
-  
+  // Group range bets
+  const allPos=[];const groups={};
   apexPositions.forEach(p=>allPos.push(p));
-  
   merPositions.forEach(p=>{
     const gk=getAssetGroup(p.ticker);
     if(gk){
-      if(!groups[gk])groups[gk]={positions:[],totalExp:0,totalPnl:0,totalContracts:0,asset:'',totalCost:0,totalValue:0};
+      if(!groups[gk])groups[gk]={positions:[],totalExp:0,totalPnl:0,totalContracts:0,asset:'',totalValue:0};
       groups[gk].positions.push(p);
       groups[gk].totalExp+=p.size;
       groups[gk].totalPnl+=(p.pnl||0);
       groups[gk].totalContracts+=p.contracts;
       if(p.curPrice&&p.contracts)groups[gk].totalValue+=p.curPrice*p.contracts/100;
-      groups[gk].totalCost+=p.size;
-      // Derive asset name
       const m=gk.match(/^(KX[A-Z]+D?)/);
       groups[gk].asset=TM[m[1]]||m[1];
-    } else {
-      allPos.push(p);
-    }
+    } else allPos.push(p);
   });
 
-  const totalOpenCount=apexPositions.length+merPos.length;
-  $('positionsTitle').innerHTML=`Open Positions <span class="section-count">(${totalOpenCount})</span>`;
+  const totalCount=apexPositions.length+merPos.length;
+  $('posCount').textContent=totalCount;
+  $('posCount2').textContent=totalCount+' positions';
+
+  function posRow(p){
+    const pctCls=p.pctChange!=null?(p.pctChange>=0?'up':'down'):'';
+    const pctStr=p.pctChange!=null?(p.pctChange>=0?'+':'')+p.pctChange.toFixed(2)+'%':'';
+    const valStr=fmt(p.size);
+    return `<div class="pos-row">
+      <div class="pos-left">
+        <div class="pos-name">${p.market}<span class="pos-badge ${p.bot}">${p.bot.toUpperCase()}</span></div>
+        <div class="pos-sub">${p.contracts} shares · Entry ${p.entry}</div>
+      </div>
+      <div class="pos-right">
+        <div class="pos-val">${valStr}</div>
+        ${pctStr?`<div class="pos-pct ${pctCls}">${pctStr}</div>`:''}
+      </div>
+    </div>`;
+  }
 
   let posHTML='';
-  // Render grouped positions
   Object.entries(groups).forEach(([gk,g])=>{
-    const id='grp-'+gk.replace(/[^a-z0-9]/gi,'');
-    const grpPct=g.totalCost>0&&g.totalValue>0?((g.totalValue-g.totalCost)/g.totalCost*100):null;
-    const grpPnlAmt=g.totalValue>0?(g.totalValue-g.totalCost):g.totalPnl;
-    const pnlStr=`<span style="color:${grpPnlAmt>=0?'var(--green)':'var(--red)'}">${grpPnlAmt>=0?'+':''}${fmt(grpPnlAmt)}${grpPct!=null?' ('+(grpPct>=0?'+':'')+grpPct.toFixed(1)+'%)':''}</span>`;
-    posHTML+=`<div class="group-header" onclick="this.classList.toggle('open');document.getElementById('${id}').classList.toggle('collapsed')">
-      <span class="chevron">▶</span>
-      <span class="position-bot meridian">MERIDIAN</span>
-      <div class="position-info">
-        <div class="position-market">${g.asset} Range Bets (${g.positions.length} positions)</div>
-        <div class="position-meta"><span>${g.totalContracts.toLocaleString()} contracts</span>${pnlStr}</div>
+    const id='g'+gk.replace(/[^a-z0-9]/gi,'');
+    const grpPct=g.totalExp>0&&g.totalValue>0?((g.totalValue-g.totalExp)/g.totalExp*100):null;
+    const pctCls=grpPct!=null?(grpPct>=0?'up':'down'):'';
+    const pctStr=grpPct!=null?(grpPct>=0?'+':'')+grpPct.toFixed(2)+'%':'';
+    posHTML+=`<div class="pos-row" onclick="document.getElementById('${id}').classList.toggle('open')">
+      <div class="pos-left">
+        <div class="pos-name">${g.asset} Range Bets<span class="pos-badge meridian">MERIDIAN</span></div>
+        <div class="pos-sub">${g.positions.length} positions · ${g.totalContracts.toLocaleString()} shares</div>
       </div>
-      <span class="side-pill yes">YES</span>
-      <div class="position-size"><div class="amount">${fmt(g.totalExp)}</div></div>
+      <div class="pos-right">
+        <div class="pos-val">${fmt(g.totalExp)}</div>
+        ${pctStr?`<div class="pos-pct ${pctCls}">${pctStr}</div>`:''}
+      </div>
     </div>
-    <div class="group-children collapsed" id="${id}">`;
-    g.positions.forEach(p=>{
-      const pnlTag=p.pnl!=null?`<span style="color:${p.pnl>=0?'var(--green)':'var(--red)'}">${fmt(p.pnl)}</span>`:'';
-      posHTML+=`<div class="position-card">
-        <div class="position-info"><div class="position-market">${p.market}</div>
-          <div class="position-meta"><span>${p.contracts} contracts</span><span>Avg ${p.entry}</span></div></div>
-        <div class="position-size"><div class="amount">${p.sizeStr}</div>${pnlTag?'<div class="pnl">'+pnlTag+'</div>':''}</div></div>`;
-    });
-    posHTML+=`</div>`;
+    <div class="group-children" id="${id}">${g.positions.map(posRow).join('')}</div>`;
   });
+  allPos.forEach(p=>posHTML+=posRow(p));
 
-  // Render ungrouped positions
-  allPos.forEach((p,i)=>{
-    const pnlVal=p.pnl!=null?p.pnl:null;
-    const pnlTag=pnlVal!=null?`<span style="color:${pnlVal>=0?'var(--green)':'var(--red)'}">${pnlVal>=0?'+':''}${fmt(pnlVal)}</span>`:'';
-    const pctColor=p.pctChange!=null&&p.pctChange>=0?'var(--green)':'var(--red)';
-    const pctTag=p.pctChange!=null?`<span style="color:${pctColor};font-weight:600">${p.pctChange>=0?'+':''}${p.pctChange.toFixed(1)}%</span>`:'';
-    const priceTag=p.curPrice?` · Now ${p.curPrice}¢`:'';
-    posHTML+=`<div class="position-card loading" style="animation-delay:${.35+i*.03}s">
-      <span class="position-bot ${p.bot}">${p.bot.toUpperCase()}</span>
-      <div class="position-info"><div class="position-market">${p.market}</div>
-        <div class="position-meta"><span>${p.contracts} contracts</span><span>Entry ${p.entry}${priceTag}</span></div></div>
-      <span class="side-pill ${p.side.toLowerCase()}">${p.side}</span>
-      <div class="position-size"><div class="amount">${p.sizeStr}</div>${pctTag?'<div class="pnl">'+pctTag+'</div>':''}${pnlTag?'<div class="pnl">'+pnlTag+'</div>':''}</div></div>`;
-  });
+  $('positions').innerHTML=posHTML||'<div style="padding:20px 0;color:var(--text3);font-size:14px">No open positions</div>';
+  $('positionsAll').innerHTML=posHTML;
 
-  $('positions').innerHTML=posHTML||'<div class="card empty-state">No open positions</div>';
-
-  // Trades - filter out ones with no timestamp
-  const rt=trades.filter(t=>t.timestamp).slice(0,20);
-  $('trades').innerHTML=rt.length===0?'<div class="empty-state">No recent trades</div>':
+  // Recent Activity (trades)
+  const rt=trades.filter(t=>t.timestamp).slice(0,8);
+  $('activity').innerHTML=rt.length===0?'<div style="padding:16px 0;color:var(--text3);font-size:14px">No recent activity</div>':
     rt.map(t=>{
       const time=new Date(t.timestamp);
-      const ts=time.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'});
-      const bot=(t._bot||'').toLowerCase();
+      const ts=time.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'UTC'});
       const act=(t.action||'').toUpperCase();
       const isBuy=act.includes('BUY')||act.includes('PLACE');
-      const st=t.status||'unknown';
       const mkt=t.market||parseTicker(t.ticker||'');
-      const sz=t.size_usdc?fmt(t.size_usdc):t.cost_cents?fmt(t.cost_cents/100):'—';
-      const pr=t.price!=null&&t.price<10?(t.price<1?(t.price*100).toFixed(0)+'¢':t.price):t.price_cents?t.price_cents+'¢':'';
-      return `<div class="trade-item">
-        <div class="trade-time">${ts}</div>
-        <div class="trade-content">
-          <div class="trade-header">
-            <span class="position-bot ${bot}">${bot.toUpperCase()}</span>
-            <span class="trade-action ${isBuy?'buy':'sell'}">${act.replace('LIMIT_','').replace('PLACE_ORDER','BUY')}</span>
-            <span class="trade-status ${st}">${st==='dry_run'?'DRY':st.toUpperCase()}</span>
-          </div>
-          <div class="trade-market">${mkt}</div>
-          <div class="trade-details">${sz}${pr?' @ '+pr:''}${t.side?' · '+t.side.toUpperCase():''}</div>
-        </div></div>`}).join('');
+      const sz=t.size_usdc?fmt(t.size_usdc):t.cost_cents?fmt(t.cost_cents/100):'';
+      return `<div class="activity-row">
+        <div class="activity-text">${isBuy?'Bought':'Sold'} ${mkt} <span class="dim">· ${sz} · ${ts}</span></div>
+      </div>`;
+    }).join('');
+
+  // Full trades list
+  $('tradesAll').innerHTML=trades.filter(t=>t.timestamp).slice(0,30).map(t=>{
+    const time=new Date(t.timestamp);
+    const ts=time.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'UTC'});
+    const act=(t.action||'').toUpperCase();
+    const isBuy=act.includes('BUY')||act.includes('PLACE');
+    const mkt=t.market||parseTicker(t.ticker||'');
+    const sz=t.size_usdc?fmt(t.size_usdc):t.cost_cents?fmt(t.cost_cents/100):'';
+    const st=t.status||'unknown';
+    const pr=t.price!=null&&t.price<10?(t.price<1?(t.price*100).toFixed(0)+'¢':t.price):t.price_cents?t.price_cents+'¢':'';
+    return `<div class="trade-row">
+      <div class="trade-main">
+        <span class="trade-action ${isBuy?'buy':'sell'}">${isBuy?'BUY':'SELL'}</span>
+        ${mkt}
+        <span class="trade-status ${st}">${st==='dry_run'?'DRY':st.toUpperCase()}</span>
+      </div>
+      <div class="trade-detail">${sz}${pr?' @ '+pr:''} · ${ts}</div>
+    </div>`;
+  }).join('')||'<div style="padding:16px 0;color:var(--text3)">No trades yet</div>';
 }
 
 loadData();setInterval(loadData,60000);
