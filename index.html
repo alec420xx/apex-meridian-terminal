@@ -19,9 +19,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .portfolio-change.down{color:var(--red)}
 
 /* Chart area */
-.chart-area{height:180px;margin:20px 0 8px;position:relative;overflow:hidden}
-.chart-line{position:absolute;bottom:0;left:0;right:0;height:100%}
-.chart-line svg{width:100%;height:100%}
+.chart-area{height:200px;margin:20px 0 8px;position:relative;overflow:hidden;touch-action:none;cursor:crosshair;-webkit-user-select:none;user-select:none}
+.chart-canvas{position:absolute;top:0;left:0;width:100%;height:100%}
+.chart-crosshair{position:absolute;top:0;width:1px;height:100%;background:rgba(255,255,255,0.3);pointer-events:none;display:none}
+.chart-dot{position:absolute;width:8px;height:8px;border-radius:50%;pointer-events:none;display:none;transform:translate(-50%,-50%);border:2px solid var(--bg)}
+.chart-time-label{position:absolute;top:4px;background:var(--surface);color:var(--text2);font-size:11px;padding:2px 8px;border-radius:8px;pointer-events:none;display:none;white-space:nowrap;transform:translateX(-50%)}
+.chart-building{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--text3);font-size:14px}
 .time-buttons{display:flex;gap:0;padding:4px 0 16px}
 .time-btn{flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--text3);padding:6px 0;border:none;background:none;cursor:pointer;border-radius:16px;transition:all .2s}
 .time-btn.active{color:var(--green);background:rgba(0,200,5,0.1)}
@@ -117,20 +120,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 
 <div class="screen">
-  <!-- Chart placeholder -->
+  <!-- Chart -->
   <div class="chart-area" id="chartArea">
-    <div class="chart-line">
-      <svg viewBox="0 0 400 160" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="var(--green)" stop-opacity="0.25"/>
-            <stop offset="100%" stop-color="var(--green)" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-        <path id="chartFill" fill="url(#cg)" d="M0,160 L0,160 400,160Z"/>
-        <path id="chartPath" fill="none" stroke="var(--green)" stroke-width="2" d="M0,160 L400,160"/>
-      </svg>
-    </div>
+    <canvas class="chart-canvas" id="chartCanvas"></canvas>
+    <div class="chart-crosshair" id="chartCrosshair"></div>
+    <div class="chart-dot" id="chartDot"></div>
+    <div class="chart-time-label" id="chartTimeLabel"></div>
   </div>
   <div class="time-buttons">
     <button class="time-btn active">1D</button>
@@ -247,13 +242,148 @@ document.querySelectorAll('.nav-item').forEach(el=>{
   });
 });
 
+// History chart
+let historyData=null,filteredData=null,currentPeriod='ALL',isScrubbing=false;
+let savedTotalValue=0,savedTotalPnl=0,savedTotalPct=0,savedPnlPositive=true;
+
+async function loadHistory(){
+  try{const r=await fetch('/history.json?'+Date.now());historyData=await r.json();filterHistory()}catch(e){historyData=null;drawChart()}
+}
+
+function filterHistory(){
+  if(!historyData||!historyData.timestamps.length){filteredData=null;drawChart();return}
+  const now=Date.now();
+  const periods={
+    '1D':now-86400000,'1W':now-7*86400000,'1M':now-30*86400000,'ALL':0
+  };
+  const cutoff=periods[currentPeriod]||0;
+  const ts=historyData.timestamps,vs=historyData.values;
+  const ft=[],fv=[];
+  for(let i=0;i<ts.length;i++){if(ts[i]>=cutoff){ft.push(ts[i]);fv.push(vs[i])}}
+  filteredData=ft.length>=2?{timestamps:ft,values:fv}:null;
+  drawChart();
+}
+
+function drawChart(){
+  const canvas=$('chartCanvas'),area=$('chartArea');
+  const dpr=window.devicePixelRatio||1;
+  const w=area.clientWidth,h=area.clientHeight;
+  canvas.width=w*dpr;canvas.height=h*dpr;
+  canvas.style.width=w+'px';canvas.style.height=h+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);
+
+  if(!filteredData||filteredData.values.length<2){
+    ctx.fillStyle='#6B6E75';ctx.font='14px -apple-system,sans-serif';ctx.textAlign='center';
+    ctx.fillText('Building history...',w/2,h/2);return;
+  }
+
+  const vs=filteredData.values;
+  const mn=Math.min(...vs),mx=Math.max(...vs);
+  const range=mx-mn||1;const pad=10;
+  const positive=vs[vs.length-1]>=vs[0];
+  const color=positive?'#00C805':'#FF5000';
+
+  // Build points
+  const pts=[];
+  for(let i=0;i<vs.length;i++){
+    const x=(i/(vs.length-1))*w;
+    const y=pad+(1-(vs[i]-mn)/range)*(h-2*pad);
+    pts.push([x,y]);
+  }
+
+  // Area fill gradient
+  const grad=ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,positive?'rgba(0,200,5,0.25)':'rgba(255,80,0,0.25)');
+  grad.addColorStop(1,positive?'rgba(0,200,5,0)':'rgba(255,80,0,0)');
+  ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);
+  ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+
+  // Line
+  ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);
+  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';ctx.stroke();
+}
+
+function getChartIndex(clientX){
+  if(!filteredData)return -1;
+  const rect=$('chartArea').getBoundingClientRect();
+  const x=clientX-rect.left;
+  const ratio=Math.max(0,Math.min(1,x/rect.width));
+  return Math.round(ratio*(filteredData.values.length-1));
+}
+
+function startScrub(clientX){
+  if(!filteredData||filteredData.values.length<2)return;
+  isScrubbing=true;updateScrub(clientX);
+}
+function updateScrub(clientX){
+  if(!isScrubbing||!filteredData)return;
+  const idx=getChartIndex(clientX);if(idx<0)return;
+  const val=filteredData.values[idx],ts=filteredData.timestamps[idx];
+  const first=filteredData.values[0];
+  const change=val-first,pct=first>0?(change/first*100):0;
+
+  $('totalValue').textContent=fmt(val);
+  const cls=change>=0?'up':'down';
+  $('totalChange').className='portfolio-change '+cls;
+  $('totalChange').textContent=(change>=0?'+':'')+fmt(change)+' ('+(change>=0?'+':'')+pct.toFixed(2)+'%)';
+
+  // Crosshair
+  const rect=$('chartArea').getBoundingClientRect();
+  const x=clientX-rect.left;
+  const ch=$('chartCrosshair'),dot=$('chartDot'),lbl=$('chartTimeLabel');
+  ch.style.display='block';ch.style.left=x+'px';
+
+  // Dot
+  const vs=filteredData.values,mn=Math.min(...vs),mx=Math.max(...vs),range=mx-mn||1,pad=10,h=rect.height;
+  const y=pad+(1-(val-mn)/range)*(h-2*pad);
+  const positive=vs[vs.length-1]>=vs[0];
+  dot.style.display='block';dot.style.left=x+'px';dot.style.top=y+'px';
+  dot.style.background=positive?'var(--green)':'var(--red)';
+
+  // Time label
+  const d=new Date(ts);
+  const timeStr=d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
+  lbl.style.display='block';
+  lbl.style.left=Math.max(40,Math.min(rect.width-40,x))+'px';
+  lbl.textContent=timeStr;
+}
+function endScrub(){
+  if(!isScrubbing)return;
+  isScrubbing=false;
+  $('chartCrosshair').style.display='none';
+  $('chartDot').style.display='none';
+  $('chartTimeLabel').style.display='none';
+  // Restore current values
+  $('totalValue').textContent=fmt(savedTotalValue);
+  const cls=savedPnlPositive?'up':'down';
+  $('totalChange').className='portfolio-change '+cls;
+  $('totalChange').textContent=(savedPnlPositive?'+':'')+fmt(savedTotalPnl)+' ('+(savedPnlPositive?'+':'')+savedTotalPct.toFixed(2)+'%) All time';
+}
+
+// Chart touch/mouse events
+const ca=$('chartArea');
+ca.addEventListener('mousedown',e=>{e.preventDefault();startScrub(e.clientX)});
+window.addEventListener('mousemove',e=>{if(isScrubbing){e.preventDefault();updateScrub(e.clientX)}});
+window.addEventListener('mouseup',endScrub);
+ca.addEventListener('touchstart',e=>{e.preventDefault();startScrub(e.touches[0].clientX)},{passive:false});
+ca.addEventListener('touchmove',e=>{e.preventDefault();updateScrub(e.touches[0].clientX)},{passive:false});
+ca.addEventListener('touchend',endScrub);
+
 // Time button switching
 document.querySelectorAll('.time-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
     document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
+    currentPeriod=btn.textContent.trim();
+    filterHistory();
   });
 });
+
+loadHistory();setInterval(loadHistory,300000);
 
 // Crypto
 const SYMS=['BTCUSDT','ETHUSDT','SOLUSDT','XRPUSDT','DOGEUSDT'];
@@ -293,20 +423,6 @@ function renderCrypto(){
 
 fetchCrypto();setInterval(fetchCrypto,15000);
 
-// Generate fake chart line
-function genChart(positive){
-  const pts=40;const vals=[];let v=80;
-  for(let i=0;i<pts;i++){v+=Math.random()*10-4.5+(positive?0.3:-0.3);v=Math.max(20,Math.min(150,v));vals.push(v)}
-  const xs=vals.map((_,i)=>(i/(pts-1))*400);
-  const path=vals.map((v,i)=>(i===0?'M':'L')+xs[i].toFixed(1)+','+v.toFixed(1)).join(' ');
-  const fill=path+' L400,160 L0,160Z';
-  $('chartPath').setAttribute('d',path);
-  $('chartFill').setAttribute('d',fill);
-  const color=positive?'var(--green)':'var(--red)';
-  $('chartPath').setAttribute('stroke',color);
-  document.querySelector('#cg stop:first-child').setAttribute('stop-color',color);
-}
-
 async function loadData(){try{const r=await fetch('/data.json?'+Date.now());renderData(await r.json())}catch(e){}}
 
 function renderData(data){
@@ -331,7 +447,8 @@ function renderData(data){
   $('totalChange').className='portfolio-change '+cls;
   $('totalChange').textContent=(totalPnl>=0?'+':'')+fmt(totalPnl)+' ('+(totalPnl>=0?'+':'')+totalPct.toFixed(2)+'%) All time';
 
-  genChart(totalPnl>=0);
+  savedTotalValue=totalPortfolio;savedTotalPnl=totalPnl;savedTotalPct=totalPct;savedPnlPositive=totalPnl>=0;
+  if(!isScrubbing)filterHistory();
 
   // Buying power
   $('buyingPower').textContent=fmt(merCash+Math.max(0,apexBal-(apex.total_invested||0)));
